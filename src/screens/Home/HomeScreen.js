@@ -14,11 +14,13 @@ const HomeScreen = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const startCountdown = () => {
     const totalSeconds = days * 86400 + hours * 3600 + minutes * 60 + seconds;
     setRemainingTime(totalSeconds);
     setIsRunning(true);
+    setIsPaused(false);
     setShowPicker(false);
   };
 
@@ -28,8 +30,16 @@ const HomeScreen = () => {
     setRemainingTime(0);
   };
 
+  const pauseCountdown = () => {
+    if (isPaused) {
+      setIsPaused(false);
+    } else {
+      setIsPaused(true);
+    }
+  };
+
   useEffect(() => {
-    if (isRunning && remainingTime > 0) {
+    if (isRunning && !isPaused && remainingTime > 0) {
       const id = setInterval(() => {
         setRemainingTime((prevTime) => prevTime - 1);
       }, 1000);
@@ -39,7 +49,7 @@ const HomeScreen = () => {
       setIsRunning(false);
     }
     return () => clearInterval(intervalId);
-  }, [isRunning, remainingTime]);
+  }, [isRunning, isPaused, remainingTime]);
 
   const formatTime = (time) => {
     const d = Math.floor(time / (3600 * 24));
@@ -99,9 +109,9 @@ const HomeScreen = () => {
                   style={[styles.iconButton, { backgroundColor: colors.success }]}
                   onPress={startCountdown}
                 >
-                  <FontAwesome name="check" size={24} color={colors.primary} />
+                  <FontAwesome name="check" size={24} color={colors.background} />
                   <Text
-                    style={[styles.iconButtonText, { color: colors.primary }]}
+                    style={[styles.iconButtonText, { color: colors.background }]}
                   >
                     Start
                   </Text>
@@ -118,17 +128,34 @@ const HomeScreen = () => {
           >
             {formatTime(remainingTime)}
           </Text>
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: colors.danger }]}
-            onPress={stopCountdown}
-          >
-            <FontAwesome name="stop" size={24} color={colors.danger} />
-            <Text
-              style={[styles.iconButtonText, { color: colors.danger }]}
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.iconButtonSmall, { backgroundColor: colors.danger }]}
+              onPress={stopCountdown}
             >
-              Stop
-            </Text>
-          </TouchableOpacity>
+              <FontAwesome name="stop" size={24} color={colors.background} />
+              <Text
+                style={[styles.iconButtonTextSmall, { color: colors.background }]}
+              >
+                Stop
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.iconButtonSmall, { backgroundColor: colors.warning }]}
+              onPress={pauseCountdown}
+            >
+              <FontAwesome
+                name={isPaused ? "play" : "pause"}
+                size={24}
+                color={colors.background}
+              />
+              <Text
+                style={[styles.iconButtonTextSmall, { color: colors.background }]}
+              >
+                {isPaused ? "Resume" : "Pause"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
       {!isRunning && remainingTime === 0 && (
@@ -152,50 +179,77 @@ const styles = StyleSheet.create({
   iconButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 10,
-    marginTop: 20,
+    borderRadius: 25,
+    marginVertical: 10,
+    elevation: 3, // Adds subtle shadow for a raised effect
   },
   iconButtonText: {
-    fontSize: 18,
     marginLeft: 10,
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  iconButtonSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginVertical: 5,
+    elevation: 2, // Smaller shadow effect for small buttons
+  },
+  iconButtonTextSmall: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '500',
   },
   runningContainer: {
     alignItems: 'center',
+    marginVertical: 20,
   },
   countdownText: {
     fontSize: 48,
     fontWeight: 'bold',
-    marginVertical: 20,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
   },
   endText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '600',
     marginTop: 20,
+    textAlign: 'center',
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Translucent background for the modal
   },
   modalContent: {
-    width: '80%',
+    width: '90%',
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 20,
+    elevation: 5, // Enhanced shadow for a floating modal effect
   },
   pickerContainer: {
-    marginBottom: 15,
+    marginVertical: 10,
   },
   pickerLabel: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: '600',
     marginBottom: 5,
+    textAlign: 'center',
   },
   picker: {
-    height: 50,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    borderRadius: 10,
+    paddingVertical: 8,
   },
 });
