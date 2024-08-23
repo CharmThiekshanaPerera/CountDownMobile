@@ -122,9 +122,9 @@ const HomeScreen = () => {
             style={[styles.iconButton, { backgroundColor: colors.danger }]}
             onPress={stopCountdown}
           >
-            <FontAwesome name="stop" size={24} color={colors.background} />
+            <FontAwesome name="stop" size={24} color={colors.danger} />
             <Text
-              style={[styles.iconButtonText, { color: colors.background }]}
+              style={[styles.iconButtonText, { color: colors.danger }]}
             >
               Stop
             </Text>
