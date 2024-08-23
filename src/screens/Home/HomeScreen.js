@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
-import { useTheme } from '@react-navigation/native'; 
+import { useTheme } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 
@@ -99,9 +99,9 @@ const HomeScreen = () => {
                   style={[styles.iconButton, { backgroundColor: colors.success }]}
                   onPress={startCountdown}
                 >
-                  <FontAwesome name="check" size={24} color={colors.background} />
+                  <FontAwesome name="check" size={24} color={colors.primary} />
                   <Text
-                    style={[styles.iconButtonText, { color: colors.background }]}
+                    style={[styles.iconButtonText, { color: colors.primary }]}
                   >
                     Start
                   </Text>
@@ -132,7 +132,7 @@ const HomeScreen = () => {
         </View>
       )}
       {!isRunning && remainingTime === 0 && (
-        <Text style={[styles.endText, { color: colors.success }]}>
+        <Text style={[styles.endText, { color: colors.primary }]}>
           Time's Up!
         </Text>
       )}
