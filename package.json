@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@react-native-community/blur": "^4.4.0",
+    "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/drawer": "^6.5.0",
     "@react-navigation/material-bottom-tabs": "^6.2.29",
