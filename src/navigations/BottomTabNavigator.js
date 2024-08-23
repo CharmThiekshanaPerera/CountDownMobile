@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { View, Text, StyleSheet, Animated } from 'react-native';
-import HomeScreen from '../screens/Home/HomeScreen';
+import CountdownScreen from '../screens/Home/HomeScreen'; // Import CountdownScreen
 import CategoriesScreen from '../screens/Categories/CategoriesScreen';
 import { useTheme } from '../contexts/ThemeContext'; // Import the useTheme hook
 
@@ -42,8 +42,8 @@ export default function BottomTabNavigator() {
           let iconName;
           let scaleValue = new Animated.Value(1);
 
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
+          if (route.name === 'Countdown') {
+            iconName = focused ? 'timer' : 'timer-outline'; // Countdown icon
           } else if (route.name === 'Categories') {
             iconName = focused ? 'view-list' : 'view-list-outline';
           }
@@ -81,15 +81,15 @@ export default function BottomTabNavigator() {
       })}
     >
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
+        name="Countdown"
+        component={CountdownScreen} // Updated screen component
         options={{ headerShown: false }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Categories"
         component={CategoriesScreen}
         options={{ headerShown: false }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 }
