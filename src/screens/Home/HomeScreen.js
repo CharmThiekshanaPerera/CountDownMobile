@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Modal, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Modal, Dimensions, FlatList, Alert } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
   const { colors } = useTheme();
@@ -14,7 +15,8 @@ const HomeScreen = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const intervalRef = useRef(null); // Use a ref to store the interval ID
+  const [savedTimers, setSavedTimers] = useState([]);
+  const intervalRef = useRef(null);
 
   const startCountdown = () => {
     const totalSeconds = days * 86400 + hours * 3600 + minutes * 60 + seconds;
@@ -34,6 +36,51 @@ const HomeScreen = () => {
     setIsPaused(!isPaused);
   };
 
+  const saveCountdown = async () => {
+    const totalSeconds = days * 86400 + hours * 3600 + minutes * 60 + seconds;
+    if (totalSeconds > 0) {
+      const formattedTime = formatTime(totalSeconds);
+      const newSavedTimers = [...savedTimers, { time: totalSeconds, formatted: formattedTime }];
+      setSavedTimers(newSavedTimers);
+      await AsyncStorage.setItem('savedTimers', JSON.stringify(newSavedTimers));
+      setShowPicker(false);
+    }
+  };
+
+  const loadSavedTimers = async () => {
+    const storedTimers = await AsyncStorage.getItem('savedTimers');
+    if (storedTimers) {
+      setSavedTimers(JSON.parse(storedTimers));
+    }
+  };
+
+  const startSavedCountdown = (totalSeconds) => {
+    setRemainingTime(totalSeconds);
+    setIsRunning(true);
+    setIsPaused(false);
+  };
+
+  const deleteSavedTimer = async (index) => {
+    const updatedTimers = savedTimers.filter((_, i) => i !== index);
+    setSavedTimers(updatedTimers);
+    await AsyncStorage.setItem('savedTimers', JSON.stringify(updatedTimers));
+  };
+
+  const confirmDelete = (index) => {
+    Alert.alert(
+      "Delete Timer",
+      "Are you sure you want to delete this timer?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: () => deleteSavedTimer(index) }
+      ]
+    );
+  };
+
+  useEffect(() => {
+    loadSavedTimers();
+  }, []);
+
   useEffect(() => {
     if (isRunning && !isPaused && remainingTime > 0) {
       intervalRef.current = setInterval(() => {
@@ -43,7 +90,6 @@ const HomeScreen = () => {
       clearInterval(intervalRef.current);
       setIsRunning(false);
     }
-    // Cleanup the interval when the component unmounts or dependencies change
     return () => clearInterval(intervalRef.current);
   }, [isRunning, isPaused, remainingTime]);
 
@@ -76,8 +122,81 @@ const HomeScreen = () => {
     </View>
   );
 
+  const renderSavedTimer = ({ item, index }) => (
+    <View style={styles.savedTimerContainer}>
+      <Text style={[styles.savedTimerText, { color: colors.text }]}>
+        {item.formatted}
+      </Text>
+      <View style={styles.savedTimerButtons}>
+        <TouchableOpacity
+          style={[styles.iconButtonSmall, styles.startSavedButton, { backgroundColor: colors.primary }]}
+          onPress={() => startSavedCountdown(item.time)}
+        >
+          <FontAwesome name="play" size={24} color={colors.text} />
+          <Text style={[styles.iconButtonTextSmall, { color: colors.text }]}>
+            Start
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.iconButtonSmall, styles.deleteButton, { backgroundColor: colors.error }]}
+          onPress={() => confirmDelete(index)}
+        >
+          <FontAwesome name="trash" size={24} color={colors.text} />
+          <Text style={[styles.iconButtonTextSmall, { color: colors.text }]}>
+            Delete
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  if (isRunning) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.countdownText, { color: colors.text }]}>
+          {formatTime(remainingTime)}
+        </Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.iconButtonSmall, styles.stopButton, { backgroundColor: colors.notification }]}
+            onPress={stopCountdown}
+          >
+            <FontAwesome name="stop" size={24} color={colors.text} />
+            <Text style={[styles.iconButtonTextSmall, { color: colors.text }]}>
+              Stop
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.iconButtonSmall, styles.pauseButton, { backgroundColor: colors.secondary }]}
+            onPress={pauseCountdown}
+          >
+            <FontAwesome
+              name={isPaused ? 'play' : 'pause'}
+              size={24}
+              color={colors.text}
+            />
+            <Text style={[styles.iconButtonTextSmall, { color: colors.text }]}>
+              {isPaused ? 'Resume' : 'Pause'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <FlatList
+        data={savedTimers}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderSavedTimer}
+        ListHeaderComponent={
+          <Text style={[styles.savedTimerHeader, { color: colors.text }]}>
+            Saved Timers:
+          </Text>
+        }
+      />
+
       {!isRunning && (
         <>
           <TouchableOpacity
@@ -96,50 +215,30 @@ const HomeScreen = () => {
                 {renderPicker('Hours', hours, setHours, 23)}
                 {renderPicker('Minutes', minutes, setMinutes, 59)}
                 {renderPicker('Seconds', seconds, setSeconds, 59)}
-                <TouchableOpacity
-                  style={[styles.iconButton, styles.startButton, { backgroundColor: colors.primary }]}
-                  onPress={startCountdown}
-                >
-                  <FontAwesome name="check" size={24} color={colors.text} />
-                  <Text style={[styles.iconButtonText, { color: colors.text }]}>
-                    Start
-                  </Text>
-                </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    style={[styles.iconButton, styles.saveButton, { backgroundColor: colors.secondary }]}
+                    onPress={saveCountdown}
+                  >
+                    <FontAwesome name="save" size={24} color={colors.text} />
+                    <Text style={[styles.iconButtonText, { color: colors.text }]}>
+                      Save
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.iconButton, styles.startButton, { backgroundColor: colors.primary }]}
+                    onPress={startCountdown}
+                  >
+                    <FontAwesome name="check" size={24} color={colors.text} />
+                    <Text style={[styles.iconButtonText, { color: colors.text }]}>
+                      Start
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </Modal>
         </>
-      )}
-      {isRunning && (
-        <View style={styles.runningContainer}>
-          <Text style={[styles.countdownText, { color: colors.text }]}>
-            {formatTime(remainingTime)}
-          </Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.iconButtonSmall, styles.stopButton, { backgroundColor: colors.notification }]}
-              onPress={stopCountdown}
-            >
-              <FontAwesome name="stop" size={24} color={colors.text} />
-              <Text style={[styles.iconButtonTextSmall, { color: colors.text }]}>
-                Stop
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.iconButtonSmall, styles.pauseButton, { backgroundColor: colors.secondary }]}
-              onPress={pauseCountdown}
-            >
-              <FontAwesome
-                name={isPaused ? 'play' : 'pause'}
-                size={24}
-                color={colors.text}
-              />
-              <Text style={[styles.iconButtonTextSmall, { color: colors.text }]}>
-                {isPaused ? 'Resume' : 'Pause'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
       )}
       {!isRunning && remainingTime === 0 && (
         <Text style={[styles.endText, { color: colors.text }]}>
@@ -149,8 +248,6 @@ const HomeScreen = () => {
     </View>
   );
 };
-
-export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -234,6 +331,43 @@ const styles = StyleSheet.create({
   },
   setTimerButton: {},
   startButton: {},
-  stopButton: {},
-  pauseButton: {},
+  stopButton: {
+    backgroundColor: 'red',
+  },
+  pauseButton: {
+    backgroundColor: 'orange',
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50', // Green
+  },
+  startSavedButton: {
+    backgroundColor: '#2196F3', // Blue
+  },
+  deleteButton: {
+    backgroundColor: '#F44336', // Red
+  },
+  savedTimerHeader: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+  savedTimerText: {
+    fontSize: 16,
+    marginVertical: 5,
+  },
+  savedTimerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
+  },
+  savedTimerButtons: {
+    flexDirection: 'row',
+  },
 });
+
+export default HomeScreen;
