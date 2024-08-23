@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
@@ -12,9 +12,9 @@ const HomeScreen = () => {
   const [seconds, setSeconds] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [intervalId, setIntervalId] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef(null); // Use a ref to store the interval ID
 
   const startCountdown = () => {
     const totalSeconds = days * 86400 + hours * 3600 + minutes * 60 + seconds;
@@ -25,7 +25,7 @@ const HomeScreen = () => {
   };
 
   const stopCountdown = () => {
-    clearInterval(intervalId);
+    clearInterval(intervalRef.current);
     setIsRunning(false);
     setRemainingTime(0);
   };
@@ -36,15 +36,15 @@ const HomeScreen = () => {
 
   useEffect(() => {
     if (isRunning && !isPaused && remainingTime > 0) {
-      const id = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setRemainingTime((prevTime) => prevTime - 1);
       }, 1000);
-      setIntervalId(id);
     } else if (remainingTime === 0 && isRunning) {
-      clearInterval(intervalId);
+      clearInterval(intervalRef.current);
       setIsRunning(false);
     }
-    return () => clearInterval(intervalId);
+    // Cleanup the interval when the component unmounts or dependencies change
+    return () => clearInterval(intervalRef.current);
   }, [isRunning, isPaused, remainingTime]);
 
   const formatTime = (time) => {
