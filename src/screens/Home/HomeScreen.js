@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
@@ -31,11 +31,7 @@ const HomeScreen = () => {
   };
 
   const pauseCountdown = () => {
-    if (isPaused) {
-      setIsPaused(false);
-    } else {
-      setIsPaused(true);
-    }
+    setIsPaused(!isPaused);
   };
 
   useEffect(() => {
@@ -85,34 +81,27 @@ const HomeScreen = () => {
       {!isRunning && (
         <>
           <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: colors.primary }]}
+            style={[styles.iconButton, styles.setTimerButton, { backgroundColor: colors.primary }]}
             onPress={() => setShowPicker(true)}
           >
-            <FontAwesome name="clock-o" size={24} color={colors.background} />
-            <Text style={[styles.iconButtonText, { color: colors.background }]}>
+            <FontAwesome name="clock-o" size={24} color={colors.text} />
+            <Text style={[styles.iconButtonText, { color: colors.text }]}>
               Set Timer
             </Text>
           </TouchableOpacity>
           <Modal transparent={true} visible={showPicker} animationType="slide">
             <View style={styles.modalContainer}>
-              <View
-                style={[
-                  styles.modalContent,
-                  { backgroundColor: colors.card },
-                ]}
-              >
+              <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
                 {renderPicker('Days', days, setDays, 30)}
                 {renderPicker('Hours', hours, setHours, 23)}
                 {renderPicker('Minutes', minutes, setMinutes, 59)}
                 {renderPicker('Seconds', seconds, setSeconds, 59)}
                 <TouchableOpacity
-                  style={[styles.iconButton, { backgroundColor: colors.success }]}
+                  style={[styles.iconButton, styles.startButton, { backgroundColor: colors.primary }]}
                   onPress={startCountdown}
                 >
-                  <FontAwesome name="check" size={24} color={colors.background} />
-                  <Text
-                    style={[styles.iconButtonText, { color: colors.background }]}
-                  >
+                  <FontAwesome name="check" size={24} color={colors.text} />
+                  <Text style={[styles.iconButtonText, { color: colors.text }]}>
                     Start
                   </Text>
                 </TouchableOpacity>
@@ -123,43 +112,37 @@ const HomeScreen = () => {
       )}
       {isRunning && (
         <View style={styles.runningContainer}>
-          <Text
-            style={[styles.countdownText, { color: colors.notification }]}
-          >
+          <Text style={[styles.countdownText, { color: colors.text }]}>
             {formatTime(remainingTime)}
           </Text>
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={[styles.iconButtonSmall, { backgroundColor: colors.danger }]}
+              style={[styles.iconButtonSmall, styles.stopButton, { backgroundColor: colors.notification }]}
               onPress={stopCountdown}
             >
-              <FontAwesome name="stop" size={24} color={colors.background} />
-              <Text
-                style={[styles.iconButtonTextSmall, { color: colors.background }]}
-              >
+              <FontAwesome name="stop" size={24} color={colors.text} />
+              <Text style={[styles.iconButtonTextSmall, { color: colors.text }]}>
                 Stop
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.iconButtonSmall, { backgroundColor: colors.warning }]}
+              style={[styles.iconButtonSmall, styles.pauseButton, { backgroundColor: colors.secondary }]}
               onPress={pauseCountdown}
             >
               <FontAwesome
-                name={isPaused ? "play" : "pause"}
+                name={isPaused ? 'play' : 'pause'}
                 size={24}
-                color={colors.background}
+                color={colors.text}
               />
-              <Text
-                style={[styles.iconButtonTextSmall, { color: colors.background }]}
-              >
-                {isPaused ? "Resume" : "Pause"}
+              <Text style={[styles.iconButtonTextSmall, { color: colors.text }]}>
+                {isPaused ? 'Resume' : 'Pause'}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
       {!isRunning && remainingTime === 0 && (
-        <Text style={[styles.endText, { color: colors.primary }]}>
+        <Text style={[styles.endText, { color: colors.text }]}>
           Time's Up!
         </Text>
       )}
@@ -176,80 +159,81 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  iconButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    marginVertical: 10,
-    elevation: 3, // Adds subtle shadow for a raised effect
-  },
-  iconButtonText: {
-    marginLeft: 10,
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  iconButtonSmall: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginVertical: 5,
-    elevation: 2, // Smaller shadow effect for small buttons
-  },
-  iconButtonTextSmall: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  runningContainer: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  countdownText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '80%',
-  },
-  endText: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginTop: 20,
-    textAlign: 'center',
-  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)', // Translucent background for the modal
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    width: '90%',
+    width: Dimensions.get('window').width * 0.85,
     padding: 20,
-    borderRadius: 20,
-    elevation: 5, // Enhanced shadow for a floating modal effect
+    borderRadius: 15,
+    elevation: 10,
   },
   pickerContainer: {
     marginVertical: 10,
   },
   pickerLabel: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
     marginBottom: 5,
-    textAlign: 'center',
+    fontWeight: '600',
   },
   picker: {
+    height: 50,
     borderRadius: 10,
-    paddingVertical: 8,
+    overflow: 'hidden',
+    fontSize: 16,
   },
+  iconButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    elevation: 5,
+    marginBottom: 20,
+  },
+  iconButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 10,
+  },
+  runningContainer: {
+    alignItems: 'center',
+  },
+  countdownText: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 20,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  iconButtonSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginHorizontal: 5,
+  },
+  iconButtonTextSmall: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  endText: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginTop: 20,
+  },
+  setTimerButton: {},
+  startButton: {},
+  stopButton: {},
+  pauseButton: {},
 });
