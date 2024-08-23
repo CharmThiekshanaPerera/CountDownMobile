@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-import { useTheme } from '@react-navigation/native'; // Import useTheme
+import { StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
+import { useTheme } from '@react-navigation/native'; 
+import { FontAwesome } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 
 const HomeScreen = () => {
-  const { colors } = useTheme(); // Get the current theme colors
-  const [days, setDays] = useState('');
-  const [hours, setHours] = useState('');
-  const [minutes, setMinutes] = useState('');
-  const [seconds, setSeconds] = useState('');
+  const { colors } = useTheme();
+  const [days, setDays] = useState(0);
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
 
-  // Function to start the countdown
   const startCountdown = () => {
-    const totalSeconds = parseInt(days) * 86400 + parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+    const totalSeconds = days * 86400 + hours * 3600 + minutes * 60 + seconds;
     setRemainingTime(totalSeconds);
     setIsRunning(true);
+    setShowPicker(false);
   };
 
-  // Function to stop the countdown manually
   const stopCountdown = () => {
     clearInterval(intervalId);
     setIsRunning(false);
-    setRemainingTime(0); // Reset the remaining time if needed
+    setRemainingTime(0);
   };
 
-  // Function to update the countdown timer
   useEffect(() => {
     if (isRunning && remainingTime > 0) {
       const id = setInterval(() => {
@@ -40,7 +41,6 @@ const HomeScreen = () => {
     return () => clearInterval(intervalId);
   }, [isRunning, remainingTime]);
 
-  // Function to format the time
   const formatTime = (time) => {
     const d = Math.floor(time / (3600 * 24));
     const h = Math.floor((time % (3600 * 24)) / 3600);
@@ -49,63 +49,92 @@ const HomeScreen = () => {
     return `${d}d ${h}h ${m}m ${s}s`;
   };
 
+  const renderPicker = (label, value, setValue, max) => (
+    <View style={styles.pickerContainer}>
+      <Text style={[styles.pickerLabel, { color: colors.text }]}>{label}</Text>
+      <Picker
+        selectedValue={value}
+        style={[
+          styles.picker,
+          {
+            backgroundColor: colors.card,
+            color: colors.text,
+          },
+        ]}
+        onValueChange={(itemValue) => setValue(itemValue)}
+      >
+        {[...Array(max + 1).keys()].map((num) => (
+          <Picker.Item key={num} label={String(num)} value={num} />
+        ))}
+      </Picker>
+    </View>
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {!isRunning && (
         <>
-          <Text style={[styles.label, { color: colors.text }]}>Days:</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
-            value={days}
-            onChangeText={setDays}
-            keyboardType="numeric"
-            placeholder="Enter days"
-            placeholderTextColor={colors.placeholder}
-          />
-          <Text style={[styles.label, { color: colors.text }]}>Hours:</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
-            value={hours}
-            onChangeText={setHours}
-            keyboardType="numeric"
-            placeholder="Enter hours"
-            placeholderTextColor={colors.placeholder}
-          />
-          <Text style={[styles.label, { color: colors.text }]}>Minutes:</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
-            value={minutes}
-            onChangeText={setMinutes}
-            keyboardType="numeric"
-            placeholder="Enter minutes"
-            placeholderTextColor={colors.placeholder}
-          />
-          <Text style={[styles.label, { color: colors.text }]}>Seconds:</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
-            value={seconds}
-            onChangeText={setSeconds}
-            keyboardType="numeric"
-            placeholder="Enter seconds"
-            placeholderTextColor={colors.placeholder}
-          />
-          <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={startCountdown}>
-            <Text style={styles.buttonText}>Start Countdown</Text>
+          <TouchableOpacity
+            style={[styles.iconButton, { backgroundColor: colors.primary }]}
+            onPress={() => setShowPicker(true)}
+          >
+            <FontAwesome name="clock-o" size={24} color={colors.background} />
+            <Text style={[styles.iconButtonText, { color: colors.background }]}>
+              Set Timer
+            </Text>
           </TouchableOpacity>
+          <Modal transparent={true} visible={showPicker} animationType="slide">
+            <View style={styles.modalContainer}>
+              <View
+                style={[
+                  styles.modalContent,
+                  { backgroundColor: colors.card },
+                ]}
+              >
+                {renderPicker('Days', days, setDays, 30)}
+                {renderPicker('Hours', hours, setHours, 23)}
+                {renderPicker('Minutes', minutes, setMinutes, 59)}
+                {renderPicker('Seconds', seconds, setSeconds, 59)}
+                <TouchableOpacity
+                  style={[styles.iconButton, { backgroundColor: colors.success }]}
+                  onPress={startCountdown}
+                >
+                  <FontAwesome name="check" size={24} color={colors.background} />
+                  <Text
+                    style={[styles.iconButtonText, { color: colors.background }]}
+                  >
+                    Start
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </>
       )}
       {isRunning && (
-        <View>
-          <Text style={[styles.countdownText, { color: colors.notification }]}>
-            Time Remaining: {formatTime(remainingTime)}
+        <View style={styles.runningContainer}>
+          <Text
+            style={[styles.countdownText, { color: colors.notification }]}
+          >
+            {formatTime(remainingTime)}
           </Text>
-          <TouchableOpacity style={[styles.stopButton, { backgroundColor: colors.secondary }]} onPress={stopCountdown}>
-            <Text style={styles.buttonText}>Stop Countdown</Text>
+          <TouchableOpacity
+            style={[styles.iconButton, { backgroundColor: colors.danger }]}
+            onPress={stopCountdown}
+          >
+            <FontAwesome name="stop" size={24} color={colors.background} />
+            <Text
+              style={[styles.iconButtonText, { color: colors.background }]}
+            >
+              Stop
+            </Text>
           </TouchableOpacity>
         </View>
       )}
       {!isRunning && remainingTime === 0 && (
-        <Text style={[styles.endText, { color: colors.success }]}>Countdown Ended!</Text>
+        <Text style={[styles.endText, { color: colors.success }]}>
+          Time's Up!
+        </Text>
       )}
     </View>
   );
@@ -120,43 +149,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  label: {
+  iconButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  iconButtonText: {
     fontSize: 18,
-    marginVertical: 8,
+    marginLeft: 10,
   },
-  input: {
-    width: '80%',
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
-  button: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  stopButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  runningContainer: {
+    alignItems: 'center',
   },
   countdownText: {
-    fontSize: 36,
+    fontSize: 48,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginVertical: 20,
   },
   endText: {
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    borderRadius: 10,
+  },
+  pickerContainer: {
+    marginBottom: 15,
+  },
+  pickerLabel: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  picker: {
+    height: 50,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
 });
