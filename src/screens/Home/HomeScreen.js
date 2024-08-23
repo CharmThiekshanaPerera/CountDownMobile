@@ -327,9 +327,13 @@ const styles = StyleSheet.create({
   endText: {
     fontSize: 22,
     fontWeight: '700',
-    marginTop: 20,
+    //marginTop: '20%',
+    marginBottom: '20%', // Increased margin bottom
   },
-  setTimerButton: {},
+  setTimerButton: {
+    marginTop: '20%',
+    //marginBottom: '20%', // Increased margin bottom
+  },
   startButton: {},
   stopButton: {
     backgroundColor: 'red',
