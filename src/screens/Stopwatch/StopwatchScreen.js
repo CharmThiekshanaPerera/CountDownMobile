@@ -34,8 +34,18 @@ const StopwatchScreen = () => {
   };
 
   const saveRecord = async () => {
-    const newRecord = formatTime(elapsedTime);
-    const updatedRecords = [...savedRecords, { time: elapsedTime, formatted: newRecord }];
+    const currentDateTime = new Date();
+    const formattedDate = currentDateTime.toLocaleDateString();
+    const formattedTime = currentDateTime.toLocaleTimeString();
+    const stopwatchTime = formatTime(elapsedTime);
+    
+    const newRecord = {
+      date: formattedDate,
+      time: formattedTime,
+      stopwatchTime: stopwatchTime
+    };
+    
+    const updatedRecords = [...savedRecords, newRecord];
     setSavedRecords(updatedRecords);
     await AsyncStorage.setItem('stopwatchRecords', JSON.stringify(updatedRecords));
   };
@@ -86,9 +96,14 @@ const StopwatchScreen = () => {
 
   const renderRecord = ({ item, index }) => (
     <View style={styles.recordContainer}>
-      <Text style={[styles.recordText, { color: colors.text }]}>
-        {item.formatted}
-      </Text>
+      <View>
+        <Text style={[styles.recordText, { color: colors.text }]}>
+          {item.stopwatchTime}
+        </Text>
+        <Text style={[styles.recordSubText, { color: colors.text }]}>
+          {item.date} - {item.time}
+        </Text>
+      </View>
       <TouchableOpacity
         style={[styles.iconButtonSmall, styles.deleteButton, { backgroundColor: colors.error }]}
         onPress={() => confirmDelete(index)}
@@ -100,7 +115,7 @@ const StopwatchScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.pageTitle, { color: colors.text }]}>Stopwatch</Text>
+      {/* <Text style={[styles.pageTitle, { color: colors.text }]}>Stopwatch</Text> */}
 
       <Text style={[styles.stopwatchText, { color: colors.text }]}>
         {formatTime(elapsedTime)}
@@ -216,9 +231,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+    width: '100%',
   },
   recordText: {
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  recordSubText: {
+    fontSize: 14,
+    color: '#888',
   },
   savedRecordsHeader: {
     fontSize: 20,
