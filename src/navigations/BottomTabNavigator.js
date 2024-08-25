@@ -3,7 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import CountdownScreen from '../screens/Home/HomeScreen'; // Import CountdownScreen
-import CategoriesScreen from '../screens/Categories/CategoriesScreen';
+import StopwatchScreen from '../screens/Stopwatch/StopwatchScreen'; // Import StopwatchScreen
+import CategoriesScreen from '../screens/Categories/CategoriesScreen'; // Import CategoriesScreen (if needed)
 import { useTheme } from '../contexts/ThemeContext'; // Import the useTheme hook
 
 const Tab = createBottomTabNavigator();
@@ -44,8 +45,10 @@ export default function BottomTabNavigator() {
 
           if (route.name === 'Countdown') {
             iconName = focused ? 'timer' : 'timer-outline'; // Countdown icon
+          } else if (route.name === 'Stopwatch') {
+            iconName = focused ? 'clock' : 'clock-outline'; // Stopwatch icon
           } else if (route.name === 'Categories') {
-            iconName = focused ? 'view-list' : 'view-list-outline';
+            iconName = focused ? 'view-list' : 'view-list-outline'; // Categories icon
           }
 
           // Animate scale when focused
@@ -82,14 +85,21 @@ export default function BottomTabNavigator() {
     >
       <Tab.Screen
         name="Countdown"
-        component={CountdownScreen} // Updated screen component
+        component={CountdownScreen} // Countdown screen component
         options={{ headerShown: false }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
+        name="Stopwatch"
+        component={StopwatchScreen} // Stopwatch screen component
+        options={{ headerShown: false }}
+      />
+      {/* Uncomment if you want to include Categories screen
+      <Tab.Screen
         name="Categories"
         component={CategoriesScreen}
         options={{ headerShown: false }}
-      /> */}
+      />
+      */}
     </Tab.Navigator>
   );
 }
