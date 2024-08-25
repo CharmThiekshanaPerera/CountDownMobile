@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import CountdownScreen from '../screens/Home/HomeScreen'; // Import CountdownScreen
 import StopwatchScreen from '../screens/Stopwatch/StopwatchScreen'; // Import StopwatchScreen
-import CategoriesScreen from '../screens/Categories/CategoriesScreen'; // Import CategoriesScreen (if needed)
+import BreathingMeterScreen from '../screens/BreathingMeter/BreathingMeter'; // Import BreathingMeterScreen
 import { useTheme } from '../contexts/ThemeContext'; // Import the useTheme hook
 
 const Tab = createBottomTabNavigator();
@@ -47,8 +47,8 @@ export default function BottomTabNavigator() {
             iconName = focused ? 'timer' : 'timer-outline'; // Countdown icon
           } else if (route.name === 'Stopwatch') {
             iconName = focused ? 'clock' : 'clock-outline'; // Stopwatch icon
-          } else if (route.name === 'Categories') {
-            iconName = focused ? 'view-list' : 'view-list-outline'; // Categories icon
+          } else if (route.name === 'BreathingMeter') {
+            iconName = focused ? 'weather-windy' : 'weather-windy'; // Breathing Meter icon
           }
 
           // Animate scale when focused
@@ -93,13 +93,11 @@ export default function BottomTabNavigator() {
         component={StopwatchScreen} // Stopwatch screen component
         options={{ headerShown: false }}
       />
-      {/* Uncomment if you want to include Categories screen
       <Tab.Screen
-        name="Categories"
-        component={CategoriesScreen}
+        name="BreathingMeter"
+        component={BreathingMeterScreen} // BreathingMeter screen component
         options={{ headerShown: false }}
       />
-      */}
     </Tab.Navigator>
   );
 }
