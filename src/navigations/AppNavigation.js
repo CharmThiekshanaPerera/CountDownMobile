@@ -18,6 +18,7 @@ import PrivacyPolicyScreen from '../screens/PrivacyPolicy/PrivacyPolicyScreen';
 import BottomTabNavigator from './BottomTabNavigator';
 import { useTheme } from '../contexts/ThemeContext';
 import SavedData from '../screens/BreathingMeter/SavedData';
+import TimerScreen from '../screens/Focus/TimerScreen'
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -121,6 +122,7 @@ function MainNavigator() {
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       <Stack.Screen name="SavedData" component={SavedData} />
+      <Stack.Screen name="TimerScreen" component={TimerScreen} />
     </Stack.Navigator>
   );
 }
