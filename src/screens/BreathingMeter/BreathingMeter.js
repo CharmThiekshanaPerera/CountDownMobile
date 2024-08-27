@@ -34,25 +34,17 @@ const LungCapacityChecker = () => {
   const startInhale = () => {
     setIsInhaling(true);
     setTimer(0);
-    Alert.alert('Inhale', 'Hold your breath as long as you can!', [
-      { text: 'Stop', onPress: stopInhale },
-    ]);
   };
 
   const stopInhale = () => {
     setIsInhaling(false);
     setInhaleHoldTime(timer);
-    Alert.alert('Exhale', 'Now, exhale and hold!', [
-      { text: 'Start Exhale', onPress: startExhale },
-    ]);
+    startExhale();
   };
 
   const startExhale = () => {
     setIsExhaling(true);
     setTimer(0);
-    Alert.alert('Exhale', 'Hold your exhale as long as you can!', [
-      { text: 'Stop', onPress: stopExhale },
-    ]);
   };
 
   const stopExhale = () => {
@@ -64,13 +56,16 @@ const LungCapacityChecker = () => {
   return (
     <View style={styles.container}>
       {isRelaxing && (
-        <CountdownCircleTimer
-          isPlaying
-          duration={5}
-          colors={['#004777']}
-        >
-          {({ remainingTime }) => <Text style={styles.timerText}>{remainingTime}</Text>}
-        </CountdownCircleTimer>
+        <>
+          <Text style={styles.relaxText}>Relax yourself...</Text>
+          <CountdownCircleTimer
+            isPlaying
+            duration={5}
+            colors={['#004777']}
+          >
+            {({ remainingTime }) => <Text style={styles.timerText}>{remainingTime}</Text>}
+          </CountdownCircleTimer>
+        </>
       )}
       {isInhaling && (
         <AnimatedCircularProgress
@@ -97,6 +92,12 @@ const LungCapacityChecker = () => {
       {!isRelaxing && !isInhaling && !isExhaling && (
         <Button title="Start Lung Capacity Test" onPress={startTest} />
       )}
+      {!isRelaxing && isInhaling && (
+        <Button title="Stop Inhale" onPress={stopInhale} />
+      )}
+      {!isRelaxing && isExhaling && (
+        <Button title="Stop Exhale" onPress={stopExhale} />
+      )}
     </View>
   );
 };
@@ -111,6 +112,13 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 40,
     color: '#000',
+  },
+  relaxText: {
+    fontSize: 30,
+    color: '#888',
+    position: 'absolute',
+    top: '20%',
+    textAlign: 'center',
   },
 });
 
