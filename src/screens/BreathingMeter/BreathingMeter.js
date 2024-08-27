@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 
 const LungCapacityChecker = () => {
+  const { colors } = useTheme();
   const [isRelaxing, setIsRelaxing] = useState(false);
   const [isInhaling, setIsInhaling] = useState(false);
   const [isExhaling, setIsExhaling] = useState(false);
@@ -59,8 +60,8 @@ const LungCapacityChecker = () => {
     setIsExhaling(false);
     setExhaleHoldTime(timer);
     console.log(`Inhale Hold Time: ${inhaleHoldTime} sec`);
-    console.log(`Exhale Hold Time: ${timer} sec`);  // Log correct value after it's updated
-    setModalVisible(true);  // Show the modal after stopping exhale
+    console.log(`Exhale Hold Time: ${timer} sec`);
+    setModalVisible(true); // Show the modal after stopping exhale
   };
 
   const saveData = async () => {
@@ -85,21 +86,23 @@ const LungCapacityChecker = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {isRelaxing && (
         <>
-          <Text style={styles.relaxText}>Relax yourself...</Text>
+          <Text style={[styles.relaxText, { color: colors.text }]}>Relax yourself...</Text>
           <CountdownCircleTimer
             isPlaying
             duration={5}
             colors={['#004777']}
           >
-            {({ remainingTime }) => <Text style={styles.timerText}>{remainingTime}</Text>}
+            {({ remainingTime }) => <Text style={[styles.timerText, { color: colors.text }]}>{remainingTime}</Text>}
           </CountdownCircleTimer>
         </>
       )}
       {relaxCompleted && !isInhaling && !inhaleHoldTime && (
-        <Button title="START INHALE" onPress={startInhale} />
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={startInhale}>
+          <Text style={[styles.buttonText, { color: colors.text }]}>START INHALE</Text>
+        </TouchableOpacity>
       )}
       {isInhaling && (
         <>
@@ -110,15 +113,17 @@ const LungCapacityChecker = () => {
             tintColor="#00e0ff"
             backgroundColor="#3d5875"
           >
-            {() => <Text style={styles.timerText}>{timer} sec</Text>}
+            {() => <Text style={[styles.timerText, { color: colors.text }]}>{timer} sec</Text>}
           </AnimatedCircularProgress>
-          <Button title="STOP INHALE" onPress={stopInhale} />
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={stopInhale}>
+            <Text style={[styles.buttonText, { color: colors.text }]}>STOP INHALE</Text>
+          </TouchableOpacity>
         </>
       )}
       {!isInhaling && inhaleHoldTime > 0 && !isExhaling && (
-        <>
-          <Button title="START EXHALE" onPress={startExhale} />
-        </>
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={startExhale}>
+          <Text style={[styles.buttonText, { color: colors.text }]}>START EXHALE</Text>
+        </TouchableOpacity>
       )}
       {isExhaling && (
         <>
@@ -129,13 +134,17 @@ const LungCapacityChecker = () => {
             tintColor="#ff6347"
             backgroundColor="#3d5875"
           >
-            {() => <Text style={styles.timerText}>{timer} sec</Text>}
+            {() => <Text style={[styles.timerText, { color: colors.text }]}>{timer} sec</Text>}
           </AnimatedCircularProgress>
-          <Button title="STOP EXHALE" onPress={stopExhale} />
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={stopExhale}>
+            <Text style={[styles.buttonText, { color: colors.text }]}>STOP EXHALE</Text>
+          </TouchableOpacity>
         </>
       )}
       {!isRelaxing && !relaxCompleted && !isInhaling && !isExhaling && !inhaleHoldTime && (
-        <Button title="Start Lung Capacity Test" onPress={startTest} />
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={startTest}>
+          <Text style={[styles.buttonText, { color: colors.text }]}>Start Lung Capacity Test</Text>
+        </TouchableOpacity>
       )}
 
       <Modal
@@ -145,12 +154,22 @@ const LungCapacityChecker = () => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Test Complete</Text>
-            <Text style={styles.modalText}>Inhale Hold Time: {inhaleHoldTime} sec</Text>
-            <Text style={styles.modalText}>Exhale Hold Time: {exhaleHoldTime} sec</Text>
-            <Button title="Save" onPress={saveData} />
-            <Button title="Start New Session" onPress={() => { setModalVisible(false); startTest(); }} />
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalText, { color: colors.text }]}>Test Complete</Text>
+            <Text style={[styles.modalText, { color: colors.text }]}>Inhale Hold Time: {inhaleHoldTime} sec</Text>
+            <Text style={[styles.modalText, { color: colors.text }]}>Exhale Hold Time: {exhaleHoldTime} sec</Text>
+            <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.primary }]} onPress={saveData}>
+              <Text style={[styles.modalButtonText, { color: colors.text }]}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: colors.primary }]}
+              onPress={() => {
+                setModalVisible(false);
+                startTest();
+              }}
+            >
+              <Text style={[styles.modalButtonText, { color: colors.text }]}>Start New Session</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -163,34 +182,57 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  timerText: {
-    fontSize: 40,
-    color: '#000',
+    padding: 20,
   },
   relaxText: {
-    fontSize: 30,
-    color: '#888',
-    position: 'absolute',
-    top: '20%',
-    textAlign: 'center',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  timerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  button: {
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginVertical: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
   },
   modalContent: {
-    backgroundColor: 'white',
+    width: '80%',
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
   },
   modalText: {
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 10,
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
