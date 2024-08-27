@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, Modal } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,6 +13,7 @@ const LungCapacityChecker = () => {
   const [exhaleHoldTime, setExhaleHoldTime] = useState(0);
   const [timer, setTimer] = useState(0);
   const [relaxCompleted, setRelaxCompleted] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -56,14 +57,9 @@ const LungCapacityChecker = () => {
   const stopExhale = () => {
     setIsExhaling(false);
     setExhaleHoldTime(timer);
-    Alert.alert(
-      'Test Complete',
-      `Inhale Hold Time: ${inhaleHoldTime} sec\nExhale Hold Time: ${exhaleHoldTime} sec`,
-      [
-        { text: 'Save', onPress: saveData },
-        { text: 'Start New Session', onPress: startTest }
-      ]
-    );
+    console.log(`Inhale Hold Time: ${inhaleHoldTime} sec`);
+    console.log(`Exhale Hold Time: ${exhaleHoldTime} sec`);
+    setModalVisible(true);  // Show the modal after stopping exhale
   };
 
   const saveData = async () => {
@@ -77,6 +73,7 @@ const LungCapacityChecker = () => {
       const data = existingData ? JSON.parse(existingData) : [];
       data.push(testData);
       await AsyncStorage.setItem('lungCapacityData', JSON.stringify(data));
+      setModalVisible(false);
       navigation.navigate('SavedData');
     } catch (error) {
       console.error('Failed to save data', error);
@@ -136,6 +133,23 @@ const LungCapacityChecker = () => {
       {!isRelaxing && !relaxCompleted && !isInhaling && !isExhaling && !inhaleHoldTime && (
         <Button title="Start Lung Capacity Test" onPress={startTest} />
       )}
+
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Test Complete</Text>
+            <Text style={styles.modalText}>Inhale Hold Time: {inhaleHoldTime} sec</Text>
+            <Text style={styles.modalText}>Exhale Hold Time: {exhaleHoldTime} sec</Text>
+            <Button title="Save" onPress={saveData} />
+            <Button title="Start New Session" onPress={() => { setModalVisible(false); startTest(); }} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -157,6 +171,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '20%',
     textAlign: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
   },
 });
 
