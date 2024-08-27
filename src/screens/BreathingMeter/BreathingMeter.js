@@ -33,6 +33,7 @@ const LungCapacityChecker = () => {
     setRelaxCompleted(false);
     setInhaleHoldTime(0);
     setExhaleHoldTime(0);
+    setTimer(0);
     setTimeout(() => {
       setIsRelaxing(false);
       setRelaxCompleted(true);
@@ -58,7 +59,7 @@ const LungCapacityChecker = () => {
     setIsExhaling(false);
     setExhaleHoldTime(timer);
     console.log(`Inhale Hold Time: ${inhaleHoldTime} sec`);
-    console.log(`Exhale Hold Time: ${exhaleHoldTime} sec`);
+    console.log(`Exhale Hold Time: ${timer} sec`);  // Log correct value after it's updated
     setModalVisible(true);  // Show the modal after stopping exhale
   };
 
@@ -72,7 +73,10 @@ const LungCapacityChecker = () => {
       const existingData = await AsyncStorage.getItem('lungCapacityData');
       const data = existingData ? JSON.parse(existingData) : [];
       data.push(testData);
+      console.log('Data to be saved:', data);
       await AsyncStorage.setItem('lungCapacityData', JSON.stringify(data));
+      const savedData = await AsyncStorage.getItem('lungCapacityData');
+      console.log('Saved Data:', JSON.parse(savedData));
       setModalVisible(false);
       navigation.navigate('SavedData');
     } catch (error) {
