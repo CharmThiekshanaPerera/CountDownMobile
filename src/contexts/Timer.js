@@ -8,7 +8,8 @@ const Timer = ({ isRunning, duration, onComplete }) => {
     <CountdownCircleTimer
       isPlaying={isRunning}
       duration={duration}
-      colors={[['#004777', 0.4], ['#F7B801', 0.4], ['#A30000', 0.2]]}
+      colors={['#004777', '#F7B801', '#A30000']} // Simplified color array
+      colorsTime={[0.4 * duration, 0.4 * duration, duration]} // Time at which colors change
       onComplete={onComplete}
       key={duration} // Force timer reset when duration changes
     >
