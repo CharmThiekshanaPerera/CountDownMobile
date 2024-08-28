@@ -1,12 +1,12 @@
-
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { View, Text, StyleSheet, Animated } from 'react-native';
-import CountdownScreen from '../screens/Home/HomeScreen';
+import CountdownScreen from '../screens/Countdown/CountdownScreen';
 import StopwatchScreen from '../screens/Stopwatch/StopwatchScreen';
 import BreathingMeterScreen from '../screens/BreathingMeter/BreathingMeter';
-import TimerScreen from '../screens/Focus/TimerScreen'; // Import TimerScreen
+import TimerScreen from '../screens/Focus/TimerScreen';
+import HomeScreen from '../screens/Home/HomeScreen'; // Import HomeScreen
 import { useTheme } from '../contexts/ThemeContext';
 
 const Tab = createBottomTabNavigator();
@@ -44,14 +44,16 @@ export default function BottomTabNavigator() {
           let iconName;
           let scaleValue = new Animated.Value(1);
 
-          if (route.name === 'Countdown') {
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Countdown') {
             iconName = focused ? 'timer' : 'timer-outline';
           } else if (route.name === 'Stopwatch') {
             iconName = focused ? 'clock' : 'clock-outline';
-          } else if (route.name === 'BreathingMeter') {
+          } else if (route.name === 'Breathing') {
             iconName = focused ? 'weather-windy' : 'weather-windy';
           } else if (route.name === 'Timer') {
-            iconName = focused ? 'timer-sand' : 'timer-sand-empty'; // Timer icon
+            iconName = focused ? 'timer-sand' : 'timer-sand-empty';
           }
 
           if (focused) {
@@ -86,6 +88,11 @@ export default function BottomTabNavigator() {
       })}
     >
       <Tab.Screen
+        name="Home"
+        component={HomeScreen} // HomeScreen tab
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
         name="Countdown"
         component={CountdownScreen}
         options={{ headerShown: false }}
@@ -96,13 +103,13 @@ export default function BottomTabNavigator() {
         options={{ headerShown: false }}
       />
       <Tab.Screen
-        name="BreathingMeter"
+        name="Breathing"
         component={BreathingMeterScreen}
         options={{ headerShown: false }}
       />
       <Tab.Screen
         name="Timer"
-        component={TimerScreen} // Add TimerScreen here
+        component={TimerScreen}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>
