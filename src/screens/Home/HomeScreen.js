@@ -1,6 +1,6 @@
 // src/screens/HomeScreen.js
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@react-navigation/native';
@@ -43,6 +43,10 @@ const HomeScreen = () => {
           You can choose between pre-configured focus sessions and custom sessions to 
           suit your needs.
         </Text> */}
+        <Image
+          source={require('../../../assets/icon.png')} // Replace with the path to your logo
+          style={styles.logo}
+        />
 
         <View style={styles.cardRow}>
           <TouchableOpacity
@@ -109,6 +113,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: 'center',
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   title: {
     fontSize: 28,
