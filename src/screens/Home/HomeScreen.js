@@ -1,6 +1,6 @@
 // src/screens/HomeScreen.js
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions, ScrollView, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@react-navigation/native';
@@ -48,61 +48,64 @@ const HomeScreen = () => {
           style={styles.logo}
         />
 
-        <View style={styles.cardRow}>
-          <TouchableOpacity
-            style={[styles.card, { backgroundColor: colors.card }]}
-            onPress={navigateToTimerScreen}
-          >
-            <FontAwesome name="clock-o" size={30} color={colors.primary} />
-            <View style={styles.cardTextContainer}>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>Pre-configured Focus Sessions</Text>
-              <Text style={[styles.cardDescription, { color: colors.text }]}>
-                Select from 25 or 45-minute sessions to enhance your focus.
-              </Text>
-            </View>
-          </TouchableOpacity>
+        {/* Scrollable Card Rows */}
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.cardRow}>
+            <TouchableOpacity
+              style={[styles.card, { backgroundColor: colors.card }]}
+              onPress={navigateToTimerScreen}
+            >
+              <FontAwesome name="clock-o" size={30} color={colors.primary} />
+              <View style={styles.cardTextContainer}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>Pre-configured Focus Sessions</Text>
+                <Text style={[styles.cardDescription, { color: colors.text }]}>
+                  Select from 25 or 45-minute sessions to enhance your focus.
+                </Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.card, { backgroundColor: colors.card }]}
-            onPress={navigateToCountDownScreen}
-          >
-            <FontAwesome name="hourglass-start" size={30} color={colors.primary} />
-            <View style={styles.cardTextContainer}>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>Custom Focus Session</Text>
-              <Text style={[styles.cardDescription, { color: colors.text }]}>
-                Set your own focus session duration and manage your time effectively.
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={[styles.card, { backgroundColor: colors.card }]}
+              onPress={navigateToCountDownScreen}
+            >
+              <FontAwesome name="hourglass-start" size={30} color={colors.primary} />
+              <View style={styles.cardTextContainer}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>Custom Focus Session</Text>
+                <Text style={[styles.cardDescription, { color: colors.text }]}>
+                  Set your own focus session duration and manage your time effectively.
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.cardRow}>
-          <TouchableOpacity
-            style={[styles.card, { backgroundColor: colors.card }]}
-            onPress={navigateToStopwatchScreen}
-          >
-            <MaterialCommunityIcons name="timer-sand" size={30} color={colors.primary} />
-            <View style={styles.cardTextContainer}>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>Stopwatch for Improving Focus</Text>
-              <Text style={[styles.cardDescription, { color: colors.text }]}>
-                Use the stopwatch to time your focus sessions and improve concentration.
-              </Text>
-            </View>
-          </TouchableOpacity>
+          <View style={styles.cardRow}>
+            <TouchableOpacity
+              style={[styles.card, { backgroundColor: colors.card }]}
+              onPress={navigateToStopwatchScreen}
+            >
+              <MaterialCommunityIcons name="timer-sand" size={30} color={colors.primary} />
+              <View style={styles.cardTextContainer}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>Stopwatch for Improving Focus</Text>
+                <Text style={[styles.cardDescription, { color: colors.text }]}>
+                  Use the stopwatch to time your focus sessions and improve concentration.
+                </Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.card, { backgroundColor: colors.card }]}
-            onPress={navigateToBreathingMeterScreen}
-          >
-            <MaterialCommunityIcons name="weather-windy" size={30} color={colors.primary} />
-            <View style={styles.cardTextContainer}>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>Breathing Exercise Timer</Text>
-              <Text style={[styles.cardDescription, { color: colors.text }]}>
-                Practice breathing exercises with a timer to relax and focus better.
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={[styles.card, { backgroundColor: colors.card }]}
+              onPress={navigateToBreathingMeterScreen}
+            >
+              <MaterialCommunityIcons name="weather-windy" size={30} color={colors.primary} />
+              <View style={styles.cardTextContainer}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>Breathing Exercise Timer</Text>
+                <Text style={[styles.cardDescription, { color: colors.text }]}>
+                  Practice breathing exercises with a timer to relax and focus better.
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </Animated.View>
     </View>
   );
@@ -121,10 +124,20 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 20,
   },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
   title: {
     fontSize: 28,
     fontWeight: '700',
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    alignSelf: 'center',
     marginBottom: 20,
   },
   description: {
